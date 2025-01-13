@@ -3,17 +3,21 @@
 	import { python } from '@codemirror/lang-python';
 	import { onMount } from 'svelte';
 	import { EditorState } from '@codemirror/state';
+	import { indentWithTab } from '@codemirror/commands';
+	import { keymap } from '@codemirror/view';
 
 	interface EditorBox {
 		id: string;
 		view: EditorView | null;
 		position: { x: number; y: number; z: number };
+		output: string | null;
 	}
 
 	let editors: EditorBox[] = $state([]);
 	let draggedEditor: EditorBox | null = $state(null);
 	let dragOffset = $state({ x: 0, y: 0 });
 	let maxZ = $state(0);
+	let output = $state('');
 
 	function addNewEditor() {
 		const newEditor: EditorBox = {
@@ -23,7 +27,8 @@
 				x: editors.length * 30,
 				y: editors.length * 30,
 				z: maxZ
-			}
+			},
+			output: null
 		};
 
 		editors = [...editors, newEditor];
@@ -33,8 +38,8 @@
 		if (!element) return;
 
 		const initState = EditorState.create({
-			doc: '// Start coding here\n',
-			extensions: [basicSetup, python()]
+			doc: '# Start coding here\n',
+			extensions: [basicSetup, python(), EditorState.tabSize.of(4), keymap.of([indentWithTab])]
 		});
 
 		editor.view = new EditorView({
@@ -43,9 +48,9 @@
 		});
 	}
 
-    function bringToFront(editorIndex: number) {
-        editors[editorIndex].position.z = ++maxZ;
-    }
+	function bringToFront(editor: EditorBox) {
+		editor.position.z = ++maxZ;
+	}
 
 	function handleDragStart(e: MouseEvent, editor: EditorBox, headerElement: HTMLElement) {
 		draggedEditor = editor;
@@ -60,7 +65,7 @@
 		const index = editors.findIndex((ed) => ed.id === draggedEditor!.id);
 		if (index === -1) return;
 
-        bringToFront(index);
+		bringToFront(editor);
 
 		headerElement.classList.add('bg-neutral-800');
 		headerElement.classList.remove('bg-neutral-900');
@@ -92,6 +97,26 @@
 		draggedEditor = null;
 	}
 
+	async function handleSubmit(editor: EditorBox) {
+		try {
+			const code = editor.view?.state.doc.toString();
+			// Temp ID to use for code request
+			const id = Date.now().toString();
+			console.log(JSON.stringify({ id, code }));
+			const response = await fetch('http://localhost:8080/run-job', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ id, code })
+			});
+			const data = await response.json();
+			editor.output = data.stdout;
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+
 	onMount(() => {
 		return () => {
 			editors.forEach((ed) => {
@@ -112,16 +137,27 @@
 	{#each editors as editor (editor.id)}
 		<div
 			class="absolute flex h-[300px] w-[400px] flex-col overflow-hidden rounded-lg bg-white shadow-lg"
-			style="transform: translate({editor.position.x}px, {editor.position.y}px); z-index: {editor.position.z}" 
+			style="transform: translate({editor.position.x}px, {editor.position.y}px); z-index: {editor
+				.position.z}"
+			onmousedown={() => bringToFront(editor)}
 		>
 			<div
+				role="textbox"
 				class="cursor-move select-none bg-neutral-900 p-2 text-white transition-colors"
 				onmousedown={(e) => handleDragStart(e, editor, e.currentTarget)}
-				onmouseup={(e) => handleDragEnd(e.target as HTMLElement)}
+				onmouseup={(e) => handleDragEnd(e.currentTarget)}
 			>
 				Editor {editor.id}
 			</div>
-			<div class="flex-grow overflow-hidden" use:initializeEditor={editor}></div>
+			<div class="flex flex-grow">
+				<div class="flex-grow overflow-hidden" use:initializeEditor={editor}></div>
+				<div class="w-1/3 bg-gray-400">{editor?.output}</div>
+			</div>
+			<button
+				type="submit"
+				class="bg-green-400 hover:bg-green-600"
+				onclick={() => handleSubmit(editor)}>Submit</button
+			>
 		</div>
 	{/each}
 </div>
