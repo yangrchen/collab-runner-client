@@ -37,7 +37,9 @@
 		"@codemirror/commands": "^6.8.0",
 		"@codemirror/lang-python": "^6.1.6",
 		"@codemirror/state": "^6.5.1",
+		"@codemirror/theme-one-dark": "^6.1.2",
 		"@codemirror/view": "^6.36.2",
+		"@xyflow/svelte": "^0.1.28",
 		"codemirror": "^6.0.1",
 		"y-codemirror.next": "^0.3.5",
 		"yjs": "^13.6.21"

@@ -1,5 +1,6 @@
 <script lang="ts">
-    import DraggableEditors from "$lib/components/DraggableEditors.svelte";
+    import SvelteTest from "$lib/components/SvelteTest.svelte";
 </script>
 
-<DraggableEditors />
+<!-- <DraggableEditors /> -->
+ <SvelteTest />
