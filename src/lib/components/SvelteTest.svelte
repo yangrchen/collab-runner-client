@@ -25,12 +25,17 @@
 
 <div class="h-screen">
 	<button onclick={addEditorNode}>Press</button>
-	<SvelteFlow {nodes} {edges} {nodeTypes} ondelete={({nodes, edges}) => {
-		if (nodes.length != 0) {
-			nodeId--;
-		}
-	}}>
-		<Background bgColor="#121230"/>
+	<SvelteFlow
+		{nodes}
+		{edges}
+		{nodeTypes}
+		ondelete={({ nodes, edges }) => {
+			if (nodes.length != 0) {
+				nodeId--;
+			}
+		}}
+	>
+		<Background bgColor="#121230" />
 		<Controls />
 	</SvelteFlow>
 </div>
