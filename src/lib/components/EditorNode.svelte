@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { indentWithTab } from '@codemirror/commands';
 	import { python } from '@codemirror/lang-python';
-	import { oneDarkTheme } from '@codemirror/theme-one-dark';
+	import { oneDark } from '@codemirror/theme-one-dark';
 	import { EditorState } from '@codemirror/state';
 	import { EditorView, keymap } from '@codemirror/view';
 	import { Handle, NodeResizer, Position, type NodeProps } from '@xyflow/svelte';
@@ -24,7 +24,7 @@
 				python(),
 				EditorState.tabSize.of(4),
 				keymap.of([indentWithTab]),
-				oneDarkTheme
+				oneDark
 			]
 		});
 
@@ -53,44 +53,36 @@
 	}
 </script>
 
-<!-- <NodeResizer
+<NodeResizer
 	isVisible={selected}
 	onResize={() => {
-		console.log('request measure');
 		editorView.requestMeasure();
 	}}
-/> -->
+	minWidth={384}
+	maxWidth={480}
+	minHeight={128}
+	maxHeight={320}
+/>
+<Handle type="target" position={Position.Left} style="z-index: 10" {isConnectable} />
+<div
+	role="textbox"
+	class="select-none rounded-t-2xl bg-neutral-900 p-0.5 text-white transition-colors"
+>
+	Editor {header}
+</div>
+<div class="flex h-[calc(100%-2rem)]">
+	<div
+		class="nodrag w-2/3 cursor-text overflow-hidden rounded-bl-2xl [&_.cm-editor]:h-full [&_.cm-editor]:min-h-32 [&_.cm-editor]:min-w-96 [&_.cm-scroller]:h-full [&_.cm-scroller]:min-h-32 [&_.cm-scroller]:min-w-96"
+		use:initializeEditor
+	></div>
+	<div class="w-1/3 rounded-br-2xl bg-red-50">{output}</div>
+	<button type="submit" class="absolute right-2 top-1" onclick={handleSubmit}>
+		<span class="icon-[line-md--play-twotone] bg-green-500 text-lg hover:bg-green-600"></span>
+	</button>
+</div>
 <Handle
-	type="target"
-	position={Position.Left}
+	type="source"
+	position={Position.Right}
 	style="background: #555; z-index: 10"
 	{isConnectable}
 />
-<div class="overflow-auto rounded-lg bg-white shadow-lg">
-	<div role="textbox" class="select-none bg-neutral-900 p-2 text-white transition-colors">
-		Editor {header}
-	</div>
-	<div class="flex flex-grow">
-		<div
-			class="nodrag h-full w-[600px] flex-grow cursor-text overflow-hidden"
-			use:initializeEditor
-		></div>
-		<div class="w-1/3 bg-gray-400">{output}</div>
-	</div>
-	<button type="submit" class="bg-green-400 hover:bg-green-600" onclick={handleSubmit}
-		>Submit</button
-	>
-</div>
-<Handle type="source" position={Position.Right} style="background: #555;" {isConnectable} />
-
-<style>
-	/* :global(.svelte-flow__node-editorNode) {
-    min-height: 300px;
-    font-size: 12px;
-    background: #eee;
-   border-radius: 5px;
-    } */
-	.svelte-flow__handle {
-		min-height: 300px;
-	}
-</style>
