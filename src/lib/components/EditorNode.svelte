@@ -64,20 +64,17 @@
 	maxHeight={320}
 />
 <Handle type="target" position={Position.Left} style="z-index: 10" {isConnectable} />
-<div
-	role="textbox"
-	class="select-none rounded-t-2xl bg-neutral-900 p-0.5 text-white transition-colors"
->
+<div class="select-none rounded-t-2xl bg-neutral-900 px-2 text-sm text-white transition-colors">
 	Editor {header}
 </div>
-<div class="flex h-[calc(100%-2rem)]">
+<div class="flex h-[calc(100%-1.25rem)]">
 	<div
 		class="nodrag w-2/3 cursor-text overflow-hidden rounded-bl-2xl [&_.cm-editor]:h-full [&_.cm-editor]:min-h-32 [&_.cm-editor]:min-w-96 [&_.cm-scroller]:h-full [&_.cm-scroller]:min-h-32 [&_.cm-scroller]:min-w-96"
 		use:initializeEditor
 	></div>
 	<div class="w-1/3 rounded-br-2xl bg-red-50">{output}</div>
-	<button type="submit" class="absolute right-2 top-1" onclick={handleSubmit}>
-		<span class="icon-[line-md--play-twotone] bg-green-500 text-lg hover:bg-green-600"></span>
+	<button type="submit" class="absolute right-1 top-0" onclick={handleSubmit}>
+		<span class="icon-[line-md--play-twotone] bg-green-500 text-lg hover:bg-green-700"></span>
 	</button>
 </div>
 <Handle

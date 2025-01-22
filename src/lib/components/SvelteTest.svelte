@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { writable } from 'svelte/store';
-	import { SvelteFlow, Background, Controls, type Node } from '@xyflow/svelte';
+	import { SvelteFlow, Background, Controls, type Node, Panel } from '@xyflow/svelte';
 	import '@xyflow/svelte/dist/style.css';
 	import EditorNode from './EditorNode.svelte';
 
@@ -24,7 +24,6 @@
 </script>
 
 <div class="h-screen">
-	<button onclick={addEditorNode}>Press</button>
 	<SvelteFlow
 		{nodes}
 		{edges}
@@ -35,6 +34,14 @@
 			}
 		}}
 	>
+		<Panel position="top-right" class="h-full content-center">
+			<div class="h-1/3 rounded bg-gray-800 p-2">
+				<button
+					onclick={addEditorNode}
+					class="icon-[proicons--python] bg-white text-2xl hover:bg-gray-400"
+				></button>
+			</div>
+		</Panel>
 		<Background bgColor="#121230" />
 		<Controls />
 	</SvelteFlow>
