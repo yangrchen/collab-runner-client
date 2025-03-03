@@ -43,6 +43,7 @@
 		"@codemirror/view": "^6.36.2",
 		"@xyflow/svelte": "^0.1.28",
 		"codemirror": "^6.0.1",
+		"uuid": "^11.0.5",
 		"y-codemirror.next": "^0.3.5",
 		"yjs": "^13.6.21"
 	}
