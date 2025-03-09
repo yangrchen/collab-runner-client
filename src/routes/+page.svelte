@@ -1,6 +1,9 @@
 <script lang="ts">
-    import SvelteTest from "$lib/components/SvelteTest.svelte";
+	import Canvas from '$lib/components/Canvas.svelte';
+	import { SvelteFlowProvider } from '@xyflow/svelte';
 </script>
 
 <!-- <DraggableEditors /> -->
- <SvelteTest />
+<SvelteFlowProvider>
+	<Canvas />
+</SvelteFlowProvider>
