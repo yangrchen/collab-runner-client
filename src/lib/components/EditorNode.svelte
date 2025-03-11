@@ -22,13 +22,16 @@
 	let outputView: EditorView;
 	let label = $state('');
 
+	let isRunning = $state(false);
+	let showOutput = $state(false);
+
 	const connections = useNodeConnections({ handleType: 'target' });
 	let sourceIds = $derived($connections.map((connection) => connection.source));
 
 	const minWidth = 400;
 	const minHeight = 200;
 
-	const adjustedMinHeight = `calc(${minHeight}px - 1.8rem)`;
+	const adjustedMinHeight = `calc(${minHeight}px - 3rem)`;
 	const adjustedMinWidth = `${minWidth / 2}px`;
 
 	function initializeEditor(element: HTMLDivElement) {
@@ -53,10 +56,8 @@
 						minWidth: adjustedMinWidth
 					},
 					'.cm-scroller': {
-						height: '100%',
-						width: '100%',
-						minHeight: adjustedMinHeight,
-						minWidth: adjustedMinWidth
+						minHeight: '100%',
+						minWidth: '100%'
 					}
 				})
 			]
@@ -77,10 +78,8 @@
 						minWidth: adjustedMinWidth
 					},
 					'.cm-scroller': {
-						height: '100%',
-						width: '100%',
-						minHeight: adjustedMinHeight,
-						minWidth: adjustedMinWidth
+						minHeight: '100%',
+						minWidth: '100%'
 					},
 					'.cm-gutters': { display: 'none' },
 					'cm-content': { display: 'none' }
@@ -101,6 +100,7 @@
 
 	async function handleSubmit() {
 		try {
+			isRunning = true;
 			const code = editorView.state.doc.toString();
 			const response = await fetch('http://localhost:8080/run-job', {
 				method: 'POST',
@@ -110,12 +110,21 @@
 				body: JSON.stringify({ id, code, sourceIds })
 			});
 			const data = await response.json();
-			console.log({ data });
 			outputView.dispatch({
 				changes: { from: 0, to: outputView.state.doc.length, insert: data.stdout }
 			});
+			isRunning = false;
+			showOutput = true;
 		} catch (error) {
-			console.error('Error:', error);
+			outputView.dispatch({
+				changes: {
+					from: 0,
+					to: outputView.state.doc.length,
+					insert: 'Error occurred during code request.'
+				}
+			});
+			isRunning = false;
+			showOutput = true;
 		}
 	}
 
@@ -131,13 +140,11 @@
 <NodeResizer isVisible={selected} {minWidth} {minHeight} />
 <Handle type="target" position={Position.Left} style="z-index: 10" {isConnectable} />
 <div
-	class="h-full min-h-[var(--min-height)] w-full min-w-[var(--min-width)]"
+	class="flex h-full min-h-[var(--min-height)] w-full min-w-[var(--min-width)] flex-col rounded-2xl bg-neutral-900 p-2"
 	style:--min-height="{minHeight}px"
 	style:--min-width="{minWidth}px"
 >
-	<div
-		class="flex select-none items-center justify-between rounded-t-2xl bg-neutral-900 px-2 py-1 text-sm transition-colors"
-	>
+	<div class="mx-2 flex select-none items-center justify-between pb-2 text-sm transition-colors">
 		<div class="flex w-full items-center">
 			<span class="icon-[proicons--python] bg-white text-lg"></span>
 			<input
@@ -147,17 +154,23 @@
 				class="nodrag ml-2 rounded bg-neutral-900 px-2 text-white hover:bg-gray-700"
 			/>
 		</div>
-		<button type="submit" aria-label="Run node" class="flex" onclick={handleSubmit}>
-			<span class="icon-[line-md--play-twotone] bg-green-500 text-xl hover:bg-green-700"></span>
+		<button
+			type="submit"
+			aria-label="Run node"
+			class="flex"
+			onclick={handleSubmit}
+			disabled={isRunning}
+		>
+			<span
+				class={isRunning
+					? 'icon-[line-md--loading-twotone-loop] bg-yellow-500 text-xl'
+					: 'icon-[line-md--play-twotone] bg-green-500 text-xl hover:bg-green-700'}
+			></span>
 		</button>
 	</div>
-	<div
-		class="flex h-[var(--adjusted-height)] w-full"
-		style:--adjusted-height={adjustedMinHeight}
-		use:initializeEditor
-	>
-		<div class="nodrag w-1/2 cursor-text"></div>
-		<div class="w-1/2"></div>
+	<div class="relative flex h-full w-full" use:initializeEditor>
+		<div class={['nodrag h-full w-full cursor-text', showOutput && 'w-1/2']}></div>
+		<div class={['absolute right-2 h-full w-1/2', !showOutput && 'hidden']}></div>
 	</div>
 </div>
 {#if sourceIds.length > 0}

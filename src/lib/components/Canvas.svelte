@@ -8,7 +8,6 @@
 		type Node,
 		Panel,
 		type Connection,
-		useSvelteFlow,
 		getOutgoers,
 		type Edge
 	} from '@xyflow/svelte';
@@ -22,7 +21,6 @@
 
 	const nodes = writable<Node[]>([]);
 	const edges = writable([]);
-	const { getNodes, getEdges } = useSvelteFlow();
 
 	$effect(() => {
 		updateConnections($edges);
@@ -40,9 +38,7 @@
 	};
 
 	const isValidConnection = (connection: Connection | Edge) => {
-		const nodes = getNodes();
-		const edges = getEdges();
-		const target = nodes.find((node) => node.id === connection.target);
+		const target = $nodes.find((node) => node.id === connection.target);
 		const hasCycle = (node: Node, visited = new Set()) => {
 			if (visited.has(node.id)) {
 				return false;
@@ -50,7 +46,7 @@
 
 			visited.add(node.id);
 
-			for (const outgoer of getOutgoers(node, nodes, edges)) {
+			for (const outgoer of getOutgoers(node, $nodes, $edges)) {
 				if (outgoer.id === connection.source) {
 					return true;
 				}
