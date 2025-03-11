@@ -168,8 +168,8 @@
 			></span>
 		</button>
 	</div>
-	<div class="relative flex h-full w-full" use:initializeEditor>
-		<div class={['nodrag h-full w-full cursor-text', showOutput && 'w-1/2']}></div>
+	<div class="relative flex h-full" use:initializeEditor>
+		<div class={['nodrag h-full cursor-text', !showOutput ? 'w-full' : 'w-1/2']}></div>
 		<div class={['absolute right-2 h-full w-1/2', !showOutput && 'hidden']}></div>
 	</div>
 </div>
